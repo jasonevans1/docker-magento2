@@ -7,8 +7,7 @@ services:
     links:
       - fpm
       - db
-    volumes_from:
-      - appdata
+      - redis
     env_file:
       - ./global.env
     environment:
@@ -20,8 +19,6 @@ services:
       - 9000
     links:
       - db
-    volumes_from:
-      - appdata
     env_file:
       - ./global.env
 
@@ -62,9 +59,14 @@ services:
       - M2SETUP_ADMIN_EMAIL=dummy@gmail.com
       - M2SETUP_ADMIN_USER=admin
       - M2SETUP_ADMIN_PASSWORD=password1
-      - M2SETUP_VERSION=2.0.2
+      - M2SETUP_VERSION=2.1.1
       # - M2SETUP_USE_SAMPLE_DATA=true
 
+  redis:
+    image: redis
+    ports:
+      - 6379
+      
   appdata:
     image: tianon/true
     volumes:

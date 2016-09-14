@@ -38,6 +38,10 @@ RUN docker-php-ext-install \
 # Install the 2.4 version of xdebug that's compatible with php7
 RUN pecl install -o -f xdebug-2.4.0
 
+RUN pecl install -o -f redis \
+&&  rm -rf /tmp/pear \
+&&  echo "extension=redis.so" > /usr/local/etc/php/conf.d/redis.ini
+
 VOLUME /root/.composer/cache
 
 ADD bin/docker-environment /usr/local/bin/

@@ -1,0 +1,16 @@
+version: "2"  
+services:  
+  web:
+    volumes:
+      - app-data-sync:/var/www/magento:rw 
+  fpm:
+    volumes:
+      - app-data-sync:/var/www/magento:rw 
+  cli:
+    volumes:
+      - app-data-sync:/var/www/magento:rw 
+
+# container name from docker-sync.yml
+volumes:  
+  app-data-sync:
+    external: true
