@@ -8,6 +8,7 @@ services:
     links:
       - fpm
       - db
+      - redis
     volumes_from:
       - appdata
     env_file:
@@ -50,22 +51,11 @@ services:
       - appdata
     env_file:
       - ./global.env
-      - ./composer.env
-    environment:
-      - M2SETUP_INSTALL_DB=true
-      - M2SETUP_DB_HOST=db
-      - M2SETUP_DB_NAME=magento2
-      - M2SETUP_DB_USER=magento2
-      - M2SETUP_DB_PASSWORD=magento2
-      - M2SETUP_BASE_URL=http://magento2.docker/
-      - M2SETUP_BACKEND_FRONTNAME=admin
-      - M2SETUP_ADMIN_FIRSTNAME=Admin
-      - M2SETUP_ADMIN_LASTNAME=User
-      - M2SETUP_ADMIN_EMAIL=dummy@gmail.com
-      - M2SETUP_ADMIN_USER=admin
-      - M2SETUP_ADMIN_PASSWORD=password1
-      - M2SETUP_VERSION=2.0.2
-      # - M2SETUP_USE_SAMPLE_DATA=true
+
+  redis:
+    image: redis
+    ports:
+      - 6379
 
   appdata:
     image: tianon/true
