@@ -1,6 +1,6 @@
 version: "2"  
 services:  
-  web:
+  apache:
     volumes:
       - app-data-sync:/var/www/magento:rw 
   fpm:
