@@ -46,6 +46,10 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 
 VOLUME /root/.composer/cache
 
+RUN curl -O https://files.magerun.net/n98-magerun2.phar
+RUN chmod +x ./n98-magerun2.phar
+RUN cp ./n98-magerun2.phar /usr/local/bin/
+
 ADD bin/* /usr/local/bin/
 ADD etc/php.ini /usr/local/etc/php/conf.d/zz-magento.ini
 ADD etc/php-xdebug.ini /usr/local/etc/php/conf.d/zz-xdebug-settings.ini
