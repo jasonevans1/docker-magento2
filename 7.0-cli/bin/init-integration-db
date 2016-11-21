@@ -1,5 +1,5 @@
 #!/bin/bash
 
 mysql -h'db' -u'root' --password='magento2' -e "DROP DATABASE magento_integration_tests; CREATE DATABASE magento_integration_tests; GRANT ALL ON magento_integration_tests.* TO 'magento2'@'localhost' IDENTIFIED BY '$M2SETUP_DB_USER';"
-mysql -h'db' -u'magento2' --password='magento2' 'magento_integration_tests' < $MAGENTO_ROOT/magento_integration_tests.sql
+mysql -h'db' -u'magento2' --password='magento2' 'magento_integration_tests' < $MAGENTO_ROOT/var/magento_integration_tests.sql
 echo 'Successfully imported magento integration database'

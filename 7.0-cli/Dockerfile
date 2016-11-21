@@ -53,6 +53,7 @@ RUN cp ./n98-magerun2.phar /usr/local/bin/
 ADD bin/* /usr/local/bin/
 ADD etc/php.ini /usr/local/etc/php/conf.d/zz-magento.ini
 ADD etc/php-xdebug.ini /usr/local/etc/php/conf.d/zz-xdebug-settings.ini
+RUN chmod +x /usr/local/bin/init-integration-db
 
 ENV PHP_MEMORY_LIMIT 2G
 ENV PHP_ENABLE_XDEBUG false
