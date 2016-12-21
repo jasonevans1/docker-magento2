@@ -18,7 +18,8 @@ RUN apt-get update \
     libjpeg62-turbo-dev \
     libmcrypt-dev \
     libpng12-dev \
-    libxslt1-dev
+    libxslt1-dev \
+    git
 
 # Configure the gd library
 RUN docker-php-ext-configure \
@@ -43,10 +44,14 @@ RUN pecl install -o -f redis \
 &&  rm -rf /tmp/pear \
 &&  echo "extension=redis.so" > /usr/local/etc/php/conf.d/redis.ini
 
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install golang-go
+RUN mkdir /opt/go && export GOPATH=/opt/go && go get github.com/mailhog/mhsendmail
+
 VOLUME /root/.composer/cache
 
 ADD bin/docker-environment /usr/local/bin/
 ADD etc/php.ini /usr/local/etc/php/conf.d/zz-magento.ini
+ADD etc/mail.ini /usr/local/etc/php/conf.d/zz-mail.ini
 ADD etc/php-xdebug.ini /usr/local/etc/php/conf.d/zz-xdebug-settings.ini
 ADD etc/php-fpm.conf /usr/local/etc/
 
