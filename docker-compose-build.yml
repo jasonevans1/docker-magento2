@@ -82,3 +82,11 @@ services:
     image: tianon/true
     volumes:
       - /var/lib/mysql
+
+  grunt:
+    build:
+      context: grunt/
+    volumes_from:
+      - appdata
+    env_file:
+      - ./global.env
