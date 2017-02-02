@@ -6,6 +6,7 @@ COPY ./etc/apt/sources.list /etc/apt/sources.list
 RUN apt-get update && apt-get install -y apache2 apache2-doc apache2-utils
 RUN a2enmod proxy_fcgi
 RUN a2enmod rewrite
+RUN a2enmod env
 
 RUN ln -sf /proc/self/fd/1 /var/log/apache2/access.log && \
     ln -sf /proc/self/fd/1 /var/log/apache2/error.log
