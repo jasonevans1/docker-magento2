@@ -2,6 +2,6 @@
 
 [ "$DEBUG" = "true" ] && set -x
 
-cp $MAGENTO_ROOT/$VIRTUAL_HOST_FILE /etc/apache2/conf-enabled/$VIRTUAL_HOST_FILE
+cp $MAGENTO_ROOT/tools/docker/$VIRTUAL_HOST_FILE /etc/apache2/conf-enabled/$VIRTUAL_HOST_FILE
 
 exec "$@"
