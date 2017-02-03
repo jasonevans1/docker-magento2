@@ -11,11 +11,9 @@ RUN a2enmod env
 RUN ln -sf /proc/self/fd/1 /var/log/apache2/access.log && \
     ln -sf /proc/self/fd/1 /var/log/apache2/error.log
 
-COPY ./etc/25-magento2-httpd.conf /etc/apache2/conf-enabled/25-magento2-httpd.conf
-
 ENV FPM_HOST fpm
 ENV FPM_PORT 9000
-ENV VIRTUAL_HOST magento.docker
+ENV VIRTUAL_HOST_FILE 25-magento2-httpd.conf
 ENV MAGENTO_ROOT /var/www/magento
 ENV MAGENTO_RUN_MODE developer
 ENV DEBUG false
