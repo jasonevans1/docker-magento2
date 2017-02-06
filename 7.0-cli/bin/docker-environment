@@ -80,4 +80,8 @@ chown www-data:www-data $MAGENTO_ROOT
     composer config --global http-basic.repo.magento.com \
         $COMPOSER_MAGENTO_USERNAME $COMPOSER_MAGENTO_PASSWORD
 
+[ ! -z "${COMPOSER_DEG_USERNAME}" ] && \
+    composer config --global http-basic.composer.degdarwin.com \
+        $COMPOSER_DEG_USERNAME $COMPOSER_DEG_PASSWORD
+
 exec "$@"
