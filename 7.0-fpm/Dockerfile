@@ -19,7 +19,9 @@ RUN apt-get update \
     libmcrypt-dev \
     libpng12-dev \
     libxslt1-dev \
-    git
+    git \
+    sendmail-bin \
+    sendmail
 
 # Configure the gd library
 RUN docker-php-ext-configure \
@@ -44,8 +46,8 @@ RUN pecl install -o -f redis \
 &&  rm -rf /tmp/pear \
 &&  echo "extension=redis.so" > /usr/local/etc/php/conf.d/redis.ini
 
-RUN DEBIAN_FRONTEND=noninteractive apt-get -y install golang-go
-RUN mkdir /opt/go && export GOPATH=/opt/go && go get github.com/mailhog/mhsendmail
+# RUN DEBIAN_FRONTEND=noninteractive apt-get -y install golang-go
+# RUN mkdir /opt/go && export GOPATH=/opt/go && go get github.com/mailhog/mhsendmail
 
 VOLUME /root/.composer/cache
 
