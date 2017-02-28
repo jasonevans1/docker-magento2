@@ -12,5 +12,3 @@ RUN npm install -g grunt-cli
 COPY run-grunt.sh /usr/local/bin/run-grunt.sh
 RUN chmod +x /usr/local/bin/run-grunt.sh
 WORKDIR /var/www/magento
-
-CMD ["run-grunt.sh"]
