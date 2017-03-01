@@ -15,4 +15,8 @@ RUN chmod +x /usr/local/bin/run-grunt.sh
 COPY run-grunt-export.sh /usr/local/bin/run-grunt-export.sh
 RUN chmod +x /usr/local/bin/run-grunt-export.sh
 
+ADD bin/docker-environment /usr/local/bin/
+
 WORKDIR /var/www/magento
+
+ENTRYPOINT ["/usr/local/bin/docker-environment"]
