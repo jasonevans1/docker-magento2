@@ -17,6 +17,7 @@ RUN chmod +x /usr/local/bin/run-grunt-export.sh
 
 ADD bin/docker-environment /usr/local/bin/
 
+ENV MAGENTO_ROOT /var/www/magento
 WORKDIR /var/www/magento
 
 ENTRYPOINT ["/usr/local/bin/docker-environment"]
