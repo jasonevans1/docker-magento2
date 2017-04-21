@@ -21,7 +21,8 @@ RUN apt-get update \
     libxslt1-dev \
     git \
     sendmail-bin \
-    sendmail
+    sendmail \
+    curl
 
 # Configure the gd library
 RUN docker-php-ext-configure \
@@ -38,6 +39,11 @@ RUN docker-php-ext-install \
   zip \
   soap \
   bcmath
+
+RUN curl -sL https://deb.nodesource.com/setup_7.x | bash - \
+  && apt-get install -y nodejs
+
+RUN npm install -g grunt-cli
 
 # Install the 2.4 version of xdebug that's compatible with php7
 RUN pecl install -o -f xdebug-2.4.0
