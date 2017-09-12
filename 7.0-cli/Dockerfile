@@ -23,7 +23,8 @@ RUN apt-get update \
     mysql-client \
     git \
     sendmail-bin \
-    sendmail
+    sendmail \
+    sudo
 
 # Configure the gd library
 RUN docker-php-ext-configure \
@@ -31,6 +32,7 @@ RUN docker-php-ext-configure \
 
 # Install required PHP extensions
 RUN docker-php-ext-install \
+  dom \
   gd \
   intl \
   mbstring \
@@ -49,6 +51,9 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 
 # Install n98-magerun2.phar and move to /usr/local/bin/
 RUN curl -O https://files.magerun.net/n98-magerun2.phar && chmod +x ./n98-magerun2.phar && cp ./n98-magerun2.phar /usr/local/bin/
+
+# Install magedbm2.phar and move to /usr/local/bin
+RUN curl -LO https://s3.eu-west-2.amazonaws.com/magedbm2-releases/magedbm2.phar && chmod +x ./magedbm2.phar && mv ./magedbm2.phar /usr/local/bin
 
 VOLUME /root/.composer/cache
 
