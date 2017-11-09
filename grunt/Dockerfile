@@ -1,8 +1,6 @@
 FROM php
 MAINTAINER Jason Evans <jevans@degdigital.com>
 
-ENV JSPM_GITHUB_AUTH_TOKEN 0000000000000000000000000000000000000000
-
 RUN apt-get update && apt-get install -y \
         curl \
         git
