@@ -9,6 +9,11 @@ FROM php:7.0-fpm
 
 MAINTAINER Nick Jones <nick@nicksays.co.uk>
 
+# Add repositories for ImageMagick PHP7, add key.
+RUN echo 'deb http://packages.dotdeb.org jessie all' >> /etc/apt/sources.list
+RUN echo 'deb-src http://packages.dotdeb.org jessie all' >> /etc/apt/sources.list
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E9C74FEEA2098A6E
+
 # Install dependencies
 RUN apt-get update \
   && apt-get install -y \
@@ -22,7 +27,9 @@ RUN apt-get update \
     git \
     sendmail-bin \
     sendmail \
-    curl
+    curl \
+    imagemagick \
+    php7.0-imagick
 
 # Configure the gd library
 RUN docker-php-ext-configure \
