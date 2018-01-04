@@ -28,6 +28,7 @@ RUN apt-get update \
     sendmail-bin \
     sendmail \
     curl \
+    imagemagick \
     libmagickwand-dev --no-install-recommends
 
 # Configure the gd library
