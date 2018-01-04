@@ -29,7 +29,7 @@ RUN apt-get update \
     sendmail \
     curl \
     imagemagick \
-    php7.0-imagick
+    libmagickwand-dev --no-install-recommends
 
 # Configure the gd library
 RUN docker-php-ext-configure \
@@ -51,6 +51,9 @@ RUN curl -sL https://deb.nodesource.com/setup_7.x | bash - \
   && apt-get install -y nodejs
 
 RUN npm install -g grunt-cli
+
+# Install ImageMagick
+RUN pecl install imagick && docker-php-ext-enable imagick
 
 # Install the 2.4 version of xdebug that's compatible with php7
 RUN pecl install -o -f xdebug-2.4.0
