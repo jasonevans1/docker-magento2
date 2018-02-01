@@ -73,8 +73,8 @@ echo "* * * * * www-data /usr/bin/flock -n /tmp/update.cron.lock /usr/local/bin/
 echo "* * * * * www-data /usr/bin/flock -n /tmp/setup.cron.lock /usr/local/bin/php ${MAGENTO_ROOT}/bin/magento setup:cron:run >> ${MAGENTO_ROOT}/var/log/setup.cron.log" >> /etc/cron.d/magento
 
 if [ "$ENABLE_SHAREDCATALOG" == "true" ]; then
-    nohup /usr/local/bin/php ${MAGENTO_ROOT}/bin/magento queue:consumers:start sharedCatalogUpdateCategoryPermissions &
-    nohup /usr/local/bin/php ${MAGENTO_ROOT}/bin/magento queue:consumers:start sharedCatalogUpdatePrice &
+    /usr/bin/nohup /usr/local/bin/php ${MAGENTO_ROOT}/bin/magento queue:consumers:start sharedCatalogUpdateCategoryPermissions &
+    /usr/bin/nohup /usr/local/bin/php ${MAGENTO_ROOT}/bin/magento queue:consumers:start sharedCatalogUpdatePrice &
 fi
 
 # Get rsyslog running for cron output
