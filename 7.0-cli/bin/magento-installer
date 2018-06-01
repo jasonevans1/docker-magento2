@@ -12,6 +12,12 @@ fi
 
 MAGENTO_COMMAND="magento-command"
 
+if [ "$SETUP_SSH_KEY" = "true" ]; then
+    mkdir -p /root/.ssh
+    cp -R /tmp/.ssh /root/.ssh
+    chown -R root:root /root/.ssh/
+fi
+
 if [ ! -f "$MAGENTO_ROOT/composer.json" ]; then
     echo "Creating Magento ($M2SETUP_VERSION) project from composer"
 
