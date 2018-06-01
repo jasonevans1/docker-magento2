@@ -64,7 +64,7 @@ fi
 # Ensure our Magento directory exists
 mkdir -p $MAGENTO_ROOT
 chown www-data:www-data $MAGENTO_ROOT
-chown -R root:root .ssh/
+chown -R root:root /root/.ssh/
 
 CRON_LOG=/var/log/cron.log
 
