@@ -14,7 +14,7 @@ MAGENTO_COMMAND="magento-command"
 
 if [ "$SETUP_SSH_KEY" = "true" ]; then
     mkdir -p /root/.ssh
-    cp -R /tmp/.ssh /root/.ssh
+    cp -R /tmp/.ssh/* /root/.ssh
     chown -R root:root /root/.ssh/
 fi
 
