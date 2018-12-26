@@ -1,12 +1,9 @@
-FROM php
+FROM node:8.14.1-jessie
 MAINTAINER Jason Evans <jevans@degdigital.com>
 
 RUN apt-get update && apt-get install -y \
         curl \
         git
-
-RUN curl -sL https://deb.nodesource.com/setup_7.x | bash - \
-  && apt-get install -y nodejs
 
 RUN npm install -g grunt-cli
 RUN npm install -g jspm
