@@ -2,63 +2,94 @@
 
 [ "$DEBUG" = "true" ] && set -x
 
-# If asked, we'll ensure that the www-data is set to the same uid/gid as the
-# mounted volume.  This works around permission issues with virtualbox shared
-# folders.
+# Simple mapping from your user/group to a user/group inside the docker.
 if [[ "$UPDATE_UID_GID" = "true" ]]; then
-    echo "Updating www-data uid and gid"
+    set -e
 
-    DOCKER_UID=`stat -c "%u" $MAGENTO_ROOT`
-    DOCKER_GID=`stat -c "%g" $MAGENTO_ROOT`
+    UNUSED_USER_ID=21338
+    UNUSED_GROUP_ID=21337
 
-    INCUMBENT_USER=`getent passwd $DOCKER_UID | cut -d: -f1`
-    INCUMBENT_GROUP=`getent group $DOCKER_GID | cut -d: -f1`
+    echo "Fixing permissions."
 
-    echo "Docker: uid = $DOCKER_UID, gid = $DOCKER_GID"
-    echo "Incumbent: user = $INCUMBENT_USER, group = $INCUMBENT_GROUP"
+    # Setting Group Permissions
+    DOCKER_GROUP_CURRENT_ID=`id -g $DOCKER_GROUP`
 
-    # Once we've established the ids and incumbent ids then we need to free them
-    # up (if necessary) and then make the change to www-data.
+    if [ $DOCKER_GROUP_CURRENT_ID -eq $HOST_GROUP_ID ]; then
+      echo "Group $DOCKER_GROUP is already mapped to $DOCKER_GROUP_CURRENT_ID. Nice!"
+    else
+      echo "Check if group with ID $HOST_GROUP_ID already exists"
+      DOCKER_GROUP_OLD=`getent group $HOST_GROUP_ID | cut -d: -f1`
 
-    [ ! -z "${INCUMBENT_USER}" ] && usermod -u 99$DOCKER_UID $INCUMBENT_USER
-    usermod -u $DOCKER_UID www-data
+      if [ -z "$DOCKER_GROUP_OLD" ]; then
+        echo "Group ID is free. Good."
+      else
+        echo "Group ID is already taken by group: $DOCKER_GROUP_OLD"
 
-    [ ! -z "${INCUMBENT_GROUP}" ] && groupmod -g 99$DOCKER_GID $INCUMBENT_GROUP
-    groupmod -g $DOCKER_GID www-data
+        echo "Changing the ID of $DOCKER_GROUP_OLD group to 21337"
+        groupmod -o -g $UNUSED_GROUP_ID $DOCKER_GROUP_OLD
+      fi
+
+      echo "Changing the ID of $DOCKER_GROUP group to $HOST_GROUP_ID"
+      groupmod -o -g $HOST_GROUP_ID $DOCKER_GROUP || true
+      echo "Finished"
+      echo "-- -- -- -- --"
+    fi
+
+    # Setting User Permissions
+    DOCKER_USER_CURRENT_ID=`id -u $DOCKER_USER`
+
+    if [ $DOCKER_USER_CURRENT_ID -eq $HOST_USER_ID ]; then
+      echo "User $DOCKER_USER is already mapped to $DOCKER_USER_CURRENT_ID. Nice!"
+
+    else
+      echo "Check if user with ID $HOST_USER_ID already exists"
+      DOCKER_USER_OLD=`getent passwd $HOST_USER_ID | cut -d: -f1`
+
+      if [ -z "$DOCKER_USER_OLD" ]; then
+        echo "User ID is free. Good."
+      else
+        echo "User ID is already taken by user: $DOCKER_USER_OLD"
+
+        echo "Changing the ID of $DOCKER_USER_OLD to 21337"
+        usermod -o -u $UNUSED_USER_ID $DOCKER_USER_OLD
+      fi
+
+      echo "Changing the ID of $DOCKER_USER user to $HOST_USER_ID"
+      usermod -o -u $HOST_USER_ID $DOCKER_USER || true
+      echo "Finished"
+    fi
+    chown -R $DOCKER_USER:$DOCKER_GROUP $MAGENTO_ROOT || true
 fi
 
 # Ensure our Magento directory exists
 mkdir -p $MAGENTO_ROOT
 chown www-data:www-data $MAGENTO_ROOT
 
-
 CRON_LOG=/var/log/cron.log
 
 # Setup Magento cron
-echo "* * * * * www-data /usr/local/bin/php ${MAGENTO_ROOT}/bin/magento cron:run | grep -v \"Ran jobs by schedule\" >> ${MAGENTO_ROOT}/var/log/magento.cron.log" > /etc/cron.d/magento
-echo "* * * * * www-data /usr/local/bin/php ${MAGENTO_ROOT}/update/cron.php >> ${MAGENTO_ROOT}/var/log/update.cron.log" >> /etc/cron.d/magento
-echo "* * * * * www-data /usr/local/bin/php ${MAGENTO_ROOT}/bin/magento setup:cron:run >> ${MAGENTO_ROOT}/var/log/setup.cron.log" >> /etc/cron.d/magento
+echo "* * * * * www-data /usr/bin/flock -n /tmp/cron.lock /usr/local/bin/php ${MAGENTO_ROOT}/bin/magento cron:run | grep -v \"Ran jobs by schedule\" >> ${MAGENTO_ROOT}/var/log/magento.cron.log" > /etc/cron.d/magento
+echo "* * * * * www-data /usr/bin/flock -n /tmp/update.cron.lock /usr/local/bin/php ${MAGENTO_ROOT}/update/cron.php >> ${MAGENTO_ROOT}/var/log/update.cron.log" >> /etc/cron.d/magento
+echo "* * * * * www-data /usr/bin/flock -n /tmp/setup.cron.lock /usr/local/bin/php ${MAGENTO_ROOT}/bin/magento setup:cron:run >> ${MAGENTO_ROOT}/var/log/setup.cron.log" >> /etc/cron.d/magento
 
 # Get rsyslog running for cron output
 touch $CRON_LOG
 echo "cron.* $CRON_LOG" > /etc/rsyslog.d/cron.conf
 service rsyslog start
 
-
-
 # Configure Sendmail if required
 if [ "$ENABLE_SENDMAIL" == "true" ]; then
     /etc/init.d/sendmail start
 fi
 
-# Substitute in php.ini values
+
+# Configure PHP
 [ ! -z "${PHP_MEMORY_LIMIT}" ] && sed -i "s/!PHP_MEMORY_LIMIT!/${PHP_MEMORY_LIMIT}/" /usr/local/etc/php/conf.d/zz-magento.ini
 [ ! -z "${UPLOAD_MAX_FILESIZE}" ] && sed -i "s/!UPLOAD_MAX_FILESIZE!/${UPLOAD_MAX_FILESIZE}/" /usr/local/etc/php/conf.d/zz-magento.ini
 
 [ "$PHP_ENABLE_XDEBUG" = "true" ] && \
     docker-php-ext-enable xdebug && \
     echo "Xdebug is enabled"
-
 
 # Configure composer
 [ ! -z "${COMPOSER_GITHUB_TOKEN}" ] && \
@@ -76,4 +107,3 @@ fi
         $COMPOSER_DEG_USERNAME $COMPOSER_DEG_PASSWORD
 
 exec "$@"
-
