@@ -1,2 +1,2 @@
 #!/bin/bash
-/usr/bin/grunt exec && /usr/bin/grunt watch
+/usr/local/bin/grunt exec && /usr/local/bin/grunt watch
