@@ -51,6 +51,9 @@ RUN docker-php-ext-install \
 RUN curl -sL https://deb.nodesource.com/setup_7.x | bash - \
   && apt-get install -y nodejs
 
+# Install ImageMagick
+RUN pecl install imagick && docker-php-ext-enable imagick
+
 # Install Xdebug (but don't enable)
 RUN pecl install -o -f xdebug
 
