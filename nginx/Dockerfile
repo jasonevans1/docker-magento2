@@ -3,6 +3,7 @@ FROM nginx:1.9
 MAINTAINER Nick Jones <nick@nicksays.co.uk>
 
 ADD etc/vhost.conf /etc/nginx/conf.d/default.conf
+ADD etc/nginx.conf /etc/nginx/nginx.conf
 COPY etc/certs/ /etc/nginx/ssl/
 ADD bin/* /usr/local/bin/
 
