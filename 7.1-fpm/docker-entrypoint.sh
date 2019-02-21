@@ -61,15 +61,24 @@ if [[ "$UPDATE_UID_GID" = "true" ]]; then
     chown -R $DOCKER_USER:$DOCKER_GROUP $MAGENTO_ROOT || true
 fi
 
-VHOST_FILE="/etc/nginx/conf.d/default.conf"
+# Ensure our Magento directory exists
+mkdir -p $MAGENTO_ROOT
+chown www-data:www-data $MAGENTO_ROOT
 
-[ ! -z "${FPM_HOST}" ] && sed -i "s/!FPM_HOST!/${FPM_HOST}/" $VHOST_FILE
-[ ! -z "${FPM_PORT}" ] && sed -i "s/!FPM_PORT!/${FPM_PORT}/" $VHOST_FILE
-[ ! -z "${VIRTUAL_HOST}" ] && sed -i "s/!VIRTUAL_HOST!/${VIRTUAL_HOST}/" $VHOST_FILE
-[ ! -z "${MAGENTO_ROOT}" ] && sed -i "s#!MAGENTO_ROOT!#${MAGENTO_ROOT}#" $VHOST_FILE
-[ ! -z "${MAGENTO_RUN_MODE}" ] && sed -i "s/!MAGENTO_RUN_MODE!/${MAGENTO_RUN_MODE}/" $VHOST_FILE
+# Configure Sendmail if required
+if [ "$ENABLE_SENDMAIL" == "true" ]; then
+    /etc/init.d/sendmail start
+fi
 
-# Check if the nginx syntax is fine, then launch.
-nginx -t
+# Configure PHP
+[ ! -z "${PHP_MEMORY_LIMIT}" ] && sed -i "s/!PHP_MEMORY_LIMIT!/${PHP_MEMORY_LIMIT}/" /usr/local/etc/php/conf.d/zz-magento.ini
+[ ! -z "${UPLOAD_MAX_FILESIZE}" ] && sed -i "s/!UPLOAD_MAX_FILESIZE!/${UPLOAD_MAX_FILESIZE}/" /usr/local/etc/php/conf.d/zz-magento.ini
+
+[ "$PHP_ENABLE_XDEBUG" = "true" ] && \
+    docker-php-ext-enable xdebug && \
+    echo "Xdebug is enabled"
+
+# Configure PHP-FPM
+[ ! -z "${MAGENTO_RUN_MODE}" ] && sed -i "s/!MAGENTO_RUN_MODE!/${MAGENTO_RUN_MODE}/" /usr/local/etc/php-fpm.conf
 
 exec "$@"

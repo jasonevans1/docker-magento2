@@ -61,15 +61,49 @@ if [[ "$UPDATE_UID_GID" = "true" ]]; then
     chown -R $DOCKER_USER:$DOCKER_GROUP $MAGENTO_ROOT || true
 fi
 
-VHOST_FILE="/etc/nginx/conf.d/default.conf"
+# Ensure our Magento directory exists
+mkdir -p $MAGENTO_ROOT
+chown www-data:www-data $MAGENTO_ROOT
 
-[ ! -z "${FPM_HOST}" ] && sed -i "s/!FPM_HOST!/${FPM_HOST}/" $VHOST_FILE
-[ ! -z "${FPM_PORT}" ] && sed -i "s/!FPM_PORT!/${FPM_PORT}/" $VHOST_FILE
-[ ! -z "${VIRTUAL_HOST}" ] && sed -i "s/!VIRTUAL_HOST!/${VIRTUAL_HOST}/" $VHOST_FILE
-[ ! -z "${MAGENTO_ROOT}" ] && sed -i "s#!MAGENTO_ROOT!#${MAGENTO_ROOT}#" $VHOST_FILE
-[ ! -z "${MAGENTO_RUN_MODE}" ] && sed -i "s/!MAGENTO_RUN_MODE!/${MAGENTO_RUN_MODE}/" $VHOST_FILE
+CRON_LOG=/var/log/cron.log
 
-# Check if the nginx syntax is fine, then launch.
-nginx -t
+# Setup Magento cron
+echo "* * * * * www-data /usr/local/bin/php ${MAGENTO_ROOT}/bin/magento cron:run | grep -v \"Ran jobs by schedule\" >> ${MAGENTO_ROOT}/var/log/magento.cron.log" > /etc/cron.d/magento
+echo "* * * * * www-data /usr/local/bin/php ${MAGENTO_ROOT}/update/cron.php >> ${MAGENTO_ROOT}/var/log/update.cron.log" >> /etc/cron.d/magento
+echo "* * * * * www-data /usr/local/bin/php ${MAGENTO_ROOT}/bin/magento setup:cron:run >> ${MAGENTO_ROOT}/var/log/setup.cron.log" >> /etc/cron.d/magento
+
+# Get rsyslog running for cron output
+touch $CRON_LOG
+echo "cron.* $CRON_LOG" > /etc/rsyslog.d/cron.conf
+service rsyslog start
+
+# Configure Sendmail if required
+if [ "$ENABLE_SENDMAIL" == "true" ]; then
+    /etc/init.d/sendmail start
+fi
+
+
+# Configure PHP
+[ ! -z "${PHP_MEMORY_LIMIT}" ] && sed -i "s/!PHP_MEMORY_LIMIT!/${PHP_MEMORY_LIMIT}/" /usr/local/etc/php/conf.d/zz-magento.ini
+[ ! -z "${UPLOAD_MAX_FILESIZE}" ] && sed -i "s/!UPLOAD_MAX_FILESIZE!/${UPLOAD_MAX_FILESIZE}/" /usr/local/etc/php/conf.d/zz-magento.ini
+
+[ "$PHP_ENABLE_XDEBUG" = "true" ] && \
+    docker-php-ext-enable xdebug && \
+    echo "Xdebug is enabled"
+
+# Configure composer
+[ ! -z "${COMPOSER_GITHUB_TOKEN}" ] && \
+    composer config --global github-oauth.github.com $COMPOSER_GITHUB_TOKEN
+
+[ ! -z "${COMPOSER_MAGENTO_USERNAME}" ] && \
+    composer config --global http-basic.repo.magento.com \
+        $COMPOSER_MAGENTO_USERNAME $COMPOSER_MAGENTO_PASSWORD
+
+[ ! -z "${COMPOSER_BITBUCKET_KEY}" ] && [ ! -z "${COMPOSER_BITBUCKET_SECRET}" ] && \
+    composer config --global bitbucket-oauth.bitbucket.org $COMPOSER_BITBUCKET_KEY $COMPOSER_BITBUCKET_SECRET
+
+[ ! -z "${COMPOSER_DEG_USERNAME}" ] && \
+    composer config --global http-basic.composer.degdarwin.com \
+        $COMPOSER_DEG_USERNAME $COMPOSER_DEG_PASSWORD
 
 exec "$@"
