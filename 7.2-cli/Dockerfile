@@ -23,6 +23,14 @@ RUN apt-get update \
     mysql-client \ 
     git
 
+RUN apt-get install -y -qq ruby-dev make ssh && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# install capistrano
+RUN gem install --no-rdoc --no-ri capistrano
+RUN gem install capistrano-magento2
+
 # Configure the gd library
 RUN docker-php-ext-configure \
   gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/
