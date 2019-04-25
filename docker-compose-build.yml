@@ -57,7 +57,7 @@ services:
   cli:
     hostname: cli.magento2.docker
     build:
-      context: 7.1-cli/
+      context: 7.2-cli/
     links:
     - db
     volumes:
