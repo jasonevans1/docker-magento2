@@ -26,6 +26,7 @@ RUN apt-get update \
     sendmail \ 
     curl \
     imagemagick \
+    ghostscript \
     libmagickwand-dev --no-install-recommends
 
 #RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E9C74FEEA2098A6E
